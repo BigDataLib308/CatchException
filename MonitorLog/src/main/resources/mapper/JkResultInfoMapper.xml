@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jtexplorer.mapper.JkResultInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jtexplorer.entity.JkResultInfo">
+        <id column="jk_resu_id" property="jkResuId"/>
+        <result column="jk_resu_success" property="jkResuSuccess"/>
+        <result column="jk_resu_fail_reason" property="jkResuFailReason"/>
+        <result column="jk_resu_fail_reason_show" property="jkResuFailReasonShow"/>
+        <result column="jk_resu_class_name" property="jkResuClassName"/>
+        <result column="jk_resu_cost_time" property="jkResuCostTime"/>
+        <result column="jk_resu_is_overtime" property="jkResuIsOvertime"/>
+        <result column="jk_resu_status" property="jkResuStatus"/>
+        <result column="jk_resu_remark" property="jkResuRemark"/>
+        <result column="jk_resu_db_create_time" property="jkResuDbCreateTime"/>
+        <result column="jk_resu_db_update_time" property="jkResuDbUpdateTime"/>
+        <result column="jk_resu_is_delete" property="jkResuIsDelete"/>
+        <result column="jk_resu_url" property="jkResuUrl"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        jk_resu_id, jk_resu_success, jk_resu_fail_reason, jk_resu_fail_reason_show, jk_resu_class_name, jk_resu_cost_time, jk_resu_is_overtime, jk_resu_status, jk_resu_remark, jk_resu_db_create_time, jk_resu_db_update_time, jk_resu_is_delete, jk_resu_url
+    </sql>
+
+    <!--检查mysql指定库中是否存在该表-->
+    <select id="checkTable" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select count(*) from information_schema.TABLES where table_name = 'jk_result_info'
+        and information_schema.TABLES.TABLE_SCHEMA=#{database}
+    </select>
+
+    <!--创建表-->
+    <update id="createTable">
+        CREATE TABLE `jk_result_info`  (
+            `jk_resu_id` int(0) NOT NULL AUTO_INCREMENT,
+            `jk_resu_success` int(0) NULL DEFAULT NULL COMMENT '接口请求是否成功  0：否   1：是',
+            `jk_resu_fail_reason` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '失败原因',
+            `jk_resu_fail_reason_show` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '失败原因（用户可见）',
+            `jk_resu_class_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '接口类名',
+            `jk_resu_cost_time` bigint(0) NULL DEFAULT NULL COMMENT '接口请求耗时',
+            `jk_resu_is_overtime` int(0) NULL DEFAULT 0 COMMENT '接口请求是否超时 0：否  1：是',
+            `jk_resu_status` int(0) NULL DEFAULT NULL COMMENT '状态   0:未发送告警通知   1：已发送告警通知',
+            `jk_resu_remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '备注',
+            `jk_resu_db_create_time` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '数据创建时间',
+            `jk_resu_db_update_time` timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '数据更新时间',
+            `jk_resu_is_delete` int(0) NULL DEFAULT 0 COMMENT '是否删除   1是',
+            `jk_resu_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '接口地址',
+            PRIMARY KEY (`jk_resu_id`) USING BTREE
+        )
+    </update>
+
+</mapper>

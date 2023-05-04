@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jtexplorer.mapper.JkExceptionInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jtexplorer.entity.JkExceptionInfo">
+        <id column="jk_exce_id" property="jkExceId"/>
+        <result column="jk_exce_class_name" property="jkExceClassName"/>
+        <result column="jk_exce_message" property="jkExceMessage"/>
+        <result column="jk_exce_trace" property="jkExceTrace"/>
+        <result column="jk_exce_status" property="jkExceStatus"/>
+        <result column="jk_exce_remark" property="jkExceRemark"/>
+        <result column="jk_exce_db_create_time" property="jkExceDbCreateTime"/>
+        <result column="jk_exce_db_update_time" property="jkExceDbUpdateTime"/>
+        <result column="jk_exce_is_delete" property="jkExceIsDelete"/>
+        <result column="jk_exec_cause" property="jkExecCause"/>
+        <result column="jk_exec_method_remark" property="jkExecMethodRemark"/>
+        <result column="jk_exec_params_json" property="jkExecParamsJson"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        jk_exce_id, jk_exce_class_name, jk_exce_message, jk_exce_trace, jk_exce_status, jk_exce_remark, jk_exce_db_create_time, jk_exce_db_update_time, jk_exce_is_delete, jk_exec_cause,jk_exec_method_remark,jk_exec_params_json
+    </sql>
+
+
+    <!-- 检查日志表是否存在   -->
+    <select id="checkTable" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select count(*) from information_schema.TABLES where table_name = 'jk_exception_info'
+        and information_schema.TABLES.TABLE_SCHEMA=#{database}
+    </select>
+
+    <!--  创建数据表  -->
+    <update id="createTable">
+        CREATE TABLE `jk_exception_info`  (
+            `jk_exce_id` bigint(0) NOT NULL AUTO_INCREMENT,
+            `jk_exce_class_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '异常所在的类',
+            `jk_exce_message` text CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT '异常信息',
+            `jk_exce_trace` text CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT '异常链路',
+            `jk_exce_status` int(0) NULL DEFAULT NULL COMMENT '状态',
+            `jk_exce_remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '备注',
+            `jk_exce_db_create_time` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '数据创建时间',
+            `jk_exce_db_update_time` timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '数更新时间',
+            `jk_exce_is_delete` int(0) NULL DEFAULT 0 COMMENT '是否删除  1是',
+            `jk_exec_cause` text CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT '异常产生的原因',
+            `jk_exec_method_remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '方法说明',
+            `jk_exec_params_json` text CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT '方法参数',
+            PRIMARY KEY (`jk_exce_id`) USING BTREE
+        )
+    </update>
+</mapper>

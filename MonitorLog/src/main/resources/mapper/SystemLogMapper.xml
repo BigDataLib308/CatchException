@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jtexplorer.mapper.SystemLogMapper">
+
+    <!--检查mysql指定库中是否存在该表-->
+    <select id="checkTable" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select count(*) from information_schema.TABLES where table_name = 'system_log'
+        and information_schema.TABLES.TABLE_SCHEMA=#{database}
+    </select>
+    <select id="checkTableColumns" resultType="java.lang.String">
+        select column_name
+        from information_schema.columns
+        where table_schema = (select database()) and table_name = 'system_log' ;
+    </select>
+
+    <!--创建表-->
+    <update id="createTableSystemLog">
+        CREATE TABLE `system_log`  (
+          `sylo_id` bigint(20) NOT NULL AUTO_INCREMENT,
+          `sylo_login_user_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '登录用户id',
+          `sylo_ip_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '请求者ip',
+          `sylo_request_data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '请求的数据',
+          `sylo_response_data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '返回的数据',`sylo_create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+          `sylo_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+          `sylo_request_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '请求地址',
+          `sylo_request_time` bigint(20) NULL DEFAULT NULL COMMENT '请求响应时间(ms)',
+          `sylo_method_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '方法名称',
+          `sylo_client` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '客户端',
+          `sylo_account` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '登录用户账号',
+          `sylo_user_real_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户真实姓名',
+          `sylo_class_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '类名（加方法名）',
+          PRIMARY KEY (`sylo_id`) USING BTREE
+        )
+        </update>
+    <update id="tableSystemLogAddColumn" parameterType="java.lang.String">
+        ALTER TABLE system_log
+            ADD COLUMN #{columnInfo}
+    </update>
+
+
+    <resultMap id="BaseResultMap" type="com.jtexplorer.entity.dto.LogCount">
+    </resultMap>
+    <select id="selectLogCount" resultMap="BaseResultMap" parameterType="map">
+        select a.url,count,if(failCount is null,0,failCount) failCount,if(errorCount is null,0,errorCount) errorCount
+        from
+            (SELECT sylo_method_name url,sylo_class_name,count(1) count
+             FROM system_log
+        where sylo_create_time > #{startTime} and #{endTime} > sylo_create_time
+             group by sylo_method_name,sylo_class_name) a
+                left join (
+                select jk_exce_class_name,count(1) errorCount
+                from jk_exception_info
+        where jk_exce_db_create_time > #{startTime} and #{endTime} > jk_exce_db_create_time
+                group by jk_exce_class_name
+            ) b on a.sylo_class_name = b.jk_exce_class_name
+                left join
+            (select jk_resu_url url,count(1) failCount
+             from jk_result_info
+             where jk_resu_db_create_time > #{startTime} and #{endTime} > jk_resu_db_create_time
+             group by jk_resu_url
+            )c on a.url = c.url
+    </select>
+</mapper>
